@@ -1,0 +1,10 @@
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\bin\Debug\Tree_Of_Objects_And_Subscription.exe.config
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\bin\Debug\Tree_Of_Objects_And_Subscription.exe
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\bin\Debug\Tree_Of_Objects_And_Subscription.pdb
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\obj\Debug\Tree_Of_Objects_And_Subscription.csprojAssemblyReference.cache
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\obj\Debug\Tree_Of_Objects_And_Subscription.Form1.resources
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\obj\Debug\Tree_Of_Objects_And_Subscription.Properties.Resources.resources
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\obj\Debug\Tree_Of_Objects_And_Subscription.csproj.GenerateResource.cache
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\obj\Debug\Tree_Of_Objects_And_Subscription.csproj.CoreCompileInputs.cache
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\obj\Debug\Tree_Of_Objects_And_Subscription.exe
+C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\Tree_Of_Objects_And_Subscription\obj\Debug\Tree_Of_Objects_And_Subscription.pdb
