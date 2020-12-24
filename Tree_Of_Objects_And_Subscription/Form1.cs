@@ -19,6 +19,7 @@ namespace Tree_Of_Objects_And_Subscription
             InitializeComponent();
             model = new MVC();
             model.observers += new System.EventHandler(this.UpdateFromMVC);
+            storage.RegisterObserver(tree);
         }
         #region Классы фигур
         public class Shape // Родительский (класс) фигуры
@@ -61,7 +62,7 @@ namespace Tree_Of_Objects_And_Subscription
             public virtual int getX_max() { return 0; }
             public virtual int getY_min() { return 0; }
             public virtual int getY_max() { return 0; }
-
+            public virtual string Name() { return ""; }
         };
         public class CreateShape : Shape
         {
@@ -141,6 +142,7 @@ namespace Tree_Of_Objects_And_Subscription
             public override int getX_max() { return x + 2 * radius; }
             public override int getY_min() { return y; }
             public override int getY_max() { return y + 2 * radius; }
+            public override string Name() { return "Circle"; }
         }
         class Triangle : Shape // Класс треугольника
         {
@@ -202,6 +204,7 @@ namespace Tree_Of_Objects_And_Subscription
             public override int getX_max() { return x + size; }
             public override int getY_min() { return y; }
             public override int getY_max() { return y + size; }
+            public override string Name() { return "Triangle"; }
         }
         class Square : Shape // Класс квадрата
         {
@@ -255,6 +258,7 @@ namespace Tree_Of_Objects_And_Subscription
             public override int getX_max() { return x + size; }
             public override int getY_min() { return y; }
             public override int getY_max() { return y + size; }
+            public override string Name() { return "Square"; }
         }
         class Group : Shape
         {
@@ -364,14 +368,28 @@ namespace Tree_Of_Objects_And_Subscription
                     group[i].SetColor(color);
                 }
             }
+            public override string Name() { return "Group"; }
         }
         #endregion
-        public class Storage
+        public interface IObservable
+        {   // Наблюдаемый объект
+            void RegisterObserver(IObserver o);
+            void RemoveObserver(IObserver o);
+            void NotifyObservers();
+        }
+        public interface IObserver
+        {   // Наблюдатель
+            void Update(ref TreeView treeView, Storage storage);
+        }
+        public class Storage: IObservable
         {
             public Shape[] objects;
+            public TreeView treeView;
+            public List<IObserver> observers;
             public Storage(int amount)
             {   // Конструктор по умолчанию 
                 objects = new Shape[amount];
+                observers = new List<IObserver>();
                 for (int i = 0; i < amount; ++i)
                     objects[i] = null;
             }
@@ -380,6 +398,10 @@ namespace Tree_Of_Objects_And_Subscription
                 objects = new Shape[amount];
                 for (int i = 0; i < amount; ++i)
                     objects[i] = null;
+            }
+            public void Initialization_tree(ref TreeView treeView)
+            {
+                this.treeView = treeView;
             }
             public void Add_object(int ind, ref Shape new_object, int count, ref int indexin)
             {   // Добавляет ячейку в хранилище
@@ -390,12 +412,14 @@ namespace Tree_Of_Objects_And_Subscription
                 }
                 objects[ind] = new_object;
                 indexin = ind;
+                NotifyObservers();
             }
             public void Delete_object(int ind)
             {   // Удаляет объект из хранилища
                 objects[ind] = null;
                 if (count_elements > 0)
                     count_elements--;
+                NotifyObservers();
             }
             public bool Is_empty(int count_elements)
             {   // Проверяет занято ли место в хранилище
@@ -423,8 +447,49 @@ namespace Tree_Of_Objects_And_Subscription
                 for (int i = 0; i < size; ++i)
                     objects[i] = new_storage.objects[i];
             }
+            public void RegisterObserver(IObserver o)
+            {
+                observers.Add(o);
+            }
+            public void RemoveObserver(IObserver o)
+            {
+                observers.Remove(o);
+            }
+            public void NotifyObservers()
+            {
+                foreach (IObserver observer in observers)
+                    observer.Update(ref treeView, this);
+            }
             ~Storage() { }
         };
+        public class TreeViews: IObserver
+        {
+            public TreeViews() { }
+            public void Update(ref TreeView treeView, Storage storage)
+            {
+                treeView.Nodes.Clear();
+                treeView.Nodes.Add("Фигуры");
+                for (int i = 0; i < count_cells; ++i)
+                {
+                    if (!storage.Is_empty(i))
+                    {
+                        fillnode(treeView.Nodes[0], storage.objects[i]);
+                    }
+                }
+                treeView.ExpandAll();
+            }
+            public void fillnode(TreeNode treeNode, Shape shape)
+            {
+                TreeNode nodes = treeNode.Nodes.Add(shape.Name());
+                if (shape.Name() == "Group")
+                {
+                    for (int i = 0; i < (shape as Group).count; ++i)
+                    {
+                        fillnode(nodes, (shape as Group).group[i]);
+                    }
+                }
+            }
+        }
         public class MVC
         {
             private string figure;
@@ -441,6 +506,7 @@ namespace Tree_Of_Objects_And_Subscription
             }
         }
         #region Объявление переменных
+        TreeViews tree = new TreeViews();
         string figure_now; // Хранит значение нынешней фигуры
         static int count_cells = 5; // Кол-во ячеек в хранилище
         static int indexin = 0; // Индекс, в какое место был помещён круг
@@ -507,6 +573,7 @@ namespace Tree_Of_Objects_And_Subscription
         private void Canvas_Panel_MouseDown(object sender, MouseEventArgs e)//Обработчик нажатия на полотно
         {
             int ind = Check_Shape(ref storage, e.X, e.Y, 0);
+            storage.Initialization_tree(ref TreeView);
             if (e.Button == MouseButtons.Left)
             {
                 if (count_elements == count_cells)
@@ -631,6 +698,10 @@ namespace Tree_Of_Objects_And_Subscription
                         return;
                     }
             }
+        }
+        private void Stickiness_ToolStripButton_Click(object sender, EventArgs e)
+        {
+
         }
 
         // создаем каталог для файла

@@ -51,6 +51,9 @@
             this.Clear_toolStripButton = new System.Windows.Forms.ToolStripButton();
             this.Canvas_Panel = new System.Windows.Forms.Panel();
             this.ColorDialog = new System.Windows.Forms.ColorDialog();
+            this.TreeView = new System.Windows.Forms.TreeView();
+            this.Stickiness_ToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -72,6 +75,8 @@
             this.toolStripSeparator14,
             this.Ungrouping_ToolStripButton,
             this.toolStripSeparator4,
+            this.Stickiness_ToolStripButton,
+            this.toolStripSeparator5,
             this.Write_ToolStripButton,
             this.toolStripSeparator3,
             this.Read_ToolStripButton,
@@ -79,7 +84,7 @@
             this.Clear_toolStripButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(800, 25);
+            this.toolStrip.Size = new System.Drawing.Size(1034, 25);
             this.toolStrip.TabIndex = 0;
             this.toolStrip.Text = "toolStrip1";
             // 
@@ -89,6 +94,7 @@
             this.Shape_toolStripLabel.Name = "Shape_toolStripLabel";
             this.Shape_toolStripLabel.Size = new System.Drawing.Size(107, 22);
             this.Shape_toolStripLabel.Text = "Выберите фигуру:";
+            this.Shape_toolStripLabel.ToolTipText = "Выбор фигуры";
             // 
             // toolStripSeparator9
             // 
@@ -244,21 +250,50 @@
             // 
             // Canvas_Panel
             // 
-            this.Canvas_Panel.Location = new System.Drawing.Point(0, 28);
+            this.Canvas_Panel.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.Canvas_Panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Canvas_Panel.Location = new System.Drawing.Point(12, 28);
             this.Canvas_Panel.Name = "Canvas_Panel";
-            this.Canvas_Panel.Size = new System.Drawing.Size(800, 421);
+            this.Canvas_Panel.Size = new System.Drawing.Size(788, 421);
             this.Canvas_Panel.TabIndex = 1;
             this.Canvas_Panel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Canvas_Panel_MouseDown);
+            // 
+            // TreeView
+            // 
+            this.TreeView.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.TreeView.Location = new System.Drawing.Point(806, 28);
+            this.TreeView.Name = "TreeView";
+            this.TreeView.Size = new System.Drawing.Size(216, 421);
+            this.TreeView.TabIndex = 2;
+            // 
+            // Stickiness_ToolStripButton
+            // 
+            this.Stickiness_ToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("Stickiness_ToolStripButton.Image")));
+            this.Stickiness_ToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.Stickiness_ToolStripButton.Name = "Stickiness_ToolStripButton";
+            this.Stickiness_ToolStripButton.Size = new System.Drawing.Size(79, 22);
+            this.Stickiness_ToolStripButton.Text = "Липкость";
+            this.Stickiness_ToolStripButton.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.Stickiness_ToolStripButton.Click += new System.EventHandler(this.Stickiness_ToolStripButton_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.BackColor = System.Drawing.Color.MistyRose;
+            this.ClientSize = new System.Drawing.Size(1034, 461);
+            this.Controls.Add(this.TreeView);
             this.Controls.Add(this.Canvas_Panel);
             this.Controls.Add(this.toolStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.KeyPreview = true;
+            this.MaximumSize = new System.Drawing.Size(1050, 500);
+            this.MinimumSize = new System.Drawing.Size(1050, 500);
             this.Name = "Form1";
             this.Text = "Лабораторная работа 8";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
@@ -293,6 +328,9 @@
         private System.Windows.Forms.ToolStripButton Group_ToolStripButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripButton Ungrouping_ToolStripButton;
+        private System.Windows.Forms.TreeView TreeView;
+        private System.Windows.Forms.ToolStripButton Stickiness_ToolStripButton;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
     }
 }
 
