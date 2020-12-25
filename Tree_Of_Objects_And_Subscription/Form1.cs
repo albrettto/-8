@@ -28,6 +28,7 @@ namespace Tree_Of_Objects_And_Subscription
             public int X_min, X_max, Y_min, Y_max;
             protected Color color = default_color;
             private bool is_selected = false;
+            private bool is_sticky = false;
             public Shape()
             {
             }
@@ -46,6 +47,14 @@ namespace Tree_Of_Objects_And_Subscription
             public bool IsSelected()
             {
                 return is_selected;
+            }
+            public void Stick(bool is_sticky)
+            {
+                this.is_sticky = is_sticky;
+            }
+            public bool IsSticky()
+            {
+                return is_sticky;
             }
             public virtual void Draw_Shape(Pen pen, Brush solidBrush, Panel Canvas_Panel) { }
             public virtual void Move_x(int x, Panel Canvas_Panel) { }
@@ -90,7 +99,7 @@ namespace Tree_Of_Objects_And_Subscription
                 }
             }
         }
-        class Circle : Shape // Класс круга
+        class Circle : Shape// Класс круга
         {
             public int radius = 30;
             public Circle() { }
@@ -125,7 +134,7 @@ namespace Tree_Of_Objects_And_Subscription
             public override bool Check_Shape(int x, int y)
             {
                 return ((x - this.x - radius) * (x - this.x - radius) +
-                        (y - this.y - radius) * (y - this.y - radius)) < (radius * radius);
+                        (y - this.y - radius) * (y - this.y - radius)) <= (radius * radius);
             }
             public override string Save()
             {
@@ -381,7 +390,7 @@ namespace Tree_Of_Objects_And_Subscription
         {   // Наблюдатель
             void Update(ref TreeView treeView, Storage storage);
         }
-        public class Storage: IObservable
+        public class Storage : IObservable
         {
             public Shape[] objects;
             public TreeView treeView;
@@ -419,11 +428,14 @@ namespace Tree_Of_Objects_And_Subscription
                 objects[ind] = null;
                 if (count_elements > 0)
                     count_elements--;
+                for (int i = ind; i < count_cells - 1; ++i)
+                    objects[i] = objects[i + 1];
+                objects[count_cells - 1] = null;
                 NotifyObservers();
             }
-            public bool Is_empty(int count_elements)
+            public bool Is_empty(int ind)
             {   // Проверяет занято ли место в хранилище
-                if (objects[count_elements] == null)
+                if (objects[ind] == null)
                     return true;
                 else return false;
             }
@@ -462,7 +474,7 @@ namespace Tree_Of_Objects_And_Subscription
             }
             ~Storage() { }
         };
-        public class TreeViews: IObserver
+        public class TreeViews : IObserver
         {
             public TreeViews() { }
             public void Update(ref TreeView treeView, Storage storage)
@@ -473,21 +485,45 @@ namespace Tree_Of_Objects_And_Subscription
                 {
                     if (!storage.Is_empty(i))
                     {
-                        fillnode(treeView.Nodes[0], storage.objects[i]);
+                        FillNode(treeView.Nodes[0], storage.objects[i]);
                     }
                 }
                 treeView.ExpandAll();
             }
-            public void fillnode(TreeNode treeNode, Shape shape)
+            public void TreeSelect(ref TreeView treeView, int index) //выбор узла
+            {   // Выделяем узел
+                treeView.SelectedNode = treeView.Nodes[0].Nodes[index];
+                treeView.Focus();
+            }
+            public void FillNode(TreeNode treeNode, Shape shape)
             {
                 TreeNode nodes = treeNode.Nodes.Add(shape.Name());
                 if (shape.Name() == "Group")
                 {
                     for (int i = 0; i < (shape as Group).count; ++i)
                     {
-                        fillnode(nodes, (shape as Group).group[i]);
+                        FillNode(nodes, (shape as Group).group[i]);
                     }
                 }
+            }
+        }
+        public class StickyObserver: IObserver
+        {
+            StickyObserver() { }
+            public void Update(ref TreeView treeView, Storage storage)
+            {
+                int x = 0, y = 0;
+                for(int i = 0; i < count_cells;++i)
+                    if(!storage.Is_empty(i))
+                        if(storage.objects[i].IsSelected() && storage.objects[i].IsSticky())
+                        {
+                            x = storage.objects[i].x;
+                            y = storage.objects[i].y;
+                        }
+                for (int i = 0; i < count_cells; ++i)
+                    if (!storage.Is_empty(i))
+                        if (storage.objects[i].Check_Shape(x, y))
+                            storage.objects[i].Select(true);
             }
         }
         public class MVC
@@ -552,14 +588,20 @@ namespace Tree_Of_Objects_And_Subscription
             for (int i = 0; i < count_cells; ++i)
                 if (!storage.Is_empty(i))
                     if (storage.objects[i].IsSelected())// Если объект выделен
+                    {
                         storage.objects[i].Move_y(y, Canvas_Panel);
+                        storage.NotifyObservers();
+                    }
         }
         private void Move_x(ref Storage storage, int x)
         {   // Функция для перемещения фигур по оси X
             for (int i = 0; i < count_cells; ++i)
                 if (!storage.Is_empty(i))
                     if (storage.objects[i].IsSelected())// Если объект выделен
+                    {
                         storage.objects[i].Move_x(x, Canvas_Panel);
+                        storage.NotifyObservers();
+                    }
         }
         private void Change_Size(ref Storage storage, int size)
         {   // Увеличивает или уменьшает размер фигур, в зависимости от size
@@ -595,11 +637,9 @@ namespace Tree_Of_Objects_And_Subscription
                 if (ind == -1)//Если место свободно
                 {
                     Deselect(ref storage);//Убираем выделение у всех объектов
-                    Redraw_Shapes(ref storage);//Перерисовываем все объекты
-                    storage.Add_object(indexin, ref shape, count_cells, ref indexin);//Добавляем объект в хранилище
+                    storage.Add_object(count_elements, ref shape, count_cells, ref indexin);//Добавляем объект в хранилище
                     shape.Select(true);//Объект выделяем
-                    Draw_Shape(ref storage, indexin);//Рисуем объект
-                    shape.Select(false);//Снимаем выделение
+                    Redraw_Shapes(ref storage);//Перерисовываем все объекты
                     count_elements++;//Увеличиваем кол-во элементов
                 }
             }
@@ -607,24 +647,20 @@ namespace Tree_Of_Objects_And_Subscription
             {
                 if (ind != -1)//Если там есть фигуры
                 {
-                    if (Control.ModifierKeys != Keys.Control)//Если не зажат Ctrl
-                    {
-                        Deselect(ref storage);//Очищаем панель
-                        Redraw_Shapes(ref storage);//Перерисовываем фигуры
+                    if (Control.ModifierKeys == Keys.Control)
+                    {   // Если нажат ctrl, то выделяем несколько объектов
+                        // Вызываем функцию отрисовки фигуры  
+                        storage.objects[ind].Select(true);
+                        Draw_Shape(ref storage, ind);
                     }
-                    storage.objects[ind].Select(true);//Выделяем объект
-                    int start = ind;
-                    while (start != count_cells - 1)//Проверяем нет ли на этом меcте еще объектов
-                    {
-                        if (Check_Shape(ref storage, e.X, e.Y, start + 1) != -1)
-                        {
-                            storage.objects[Check_Shape(ref storage, e.X, e.Y, start + 1)].Select(true);
-                            start = Check_Shape(ref storage, e.X, e.Y, start + 1);
-                        }
-                        else
-                            break;
+                    else
+                    {   // Иначе выделяем только один объект
+                        // Снимаем выделение у всех объектов хранилища
+                        Deselect(ref storage);
+                        Draw_Shape(ref storage, ind);
+                        tree.TreeSelect(ref TreeView, ind);
                     }
-                    Redraw_Shapes(ref storage);//Перерисовываем фигуры
+                    return;
                 }
             }
         }
@@ -683,6 +719,7 @@ namespace Tree_Of_Objects_And_Subscription
                     {
                         group.Add_to_Group(ref storage.objects[i]);
                         storage.Delete_object(i);
+                        --i;
                     }
             }
             storage.Add_object(count_elements, ref group, count_cells, ref indexin);
@@ -699,13 +736,30 @@ namespace Tree_Of_Objects_And_Subscription
                     }
             }
         }
+        bool sticky_now = false;
         private void Stickiness_ToolStripButton_Click(object sender, EventArgs e)
         {
-
+            for (int i = 0; i < count_cells; ++i)
+                if (!storage.Is_empty(i))
+                    if (storage.objects[i].IsSelected())
+                    {
+                        if (!storage.objects[i].IsSticky() && !sticky_now)
+                        {
+                            storage.objects[i].Stick(true);
+                            sticky_now = true;
+                            break;
+                        }
+                        else
+                            if (storage.objects[i].IsSticky() && sticky_now)
+                        {
+                            storage.objects[i].Stick(false);
+                            sticky_now = false;
+                        }
+                    }
+            Redraw_Shapes(ref storage);
         }
-
         // создаем каталог для файла
-        string path = @"C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 7\File.txt";
+        readonly string path = @"C:\Users\User\OneDrive\Рабочий стол\УНИВЕР\2 КУРС\3 СЕМЕСТР\ООП\Лабораторная работа 8\File.txt";
         private void Write_ToolStripButton_Click(object sender, EventArgs e)
         {
             using (StreamWriter sw = new StreamWriter(path, false, System.Text.Encoding.Default))
@@ -745,9 +799,22 @@ namespace Tree_Of_Objects_And_Subscription
         private void Clear_toolStripButton_Click(object sender, EventArgs e)
         {
             Canvas_Panel.Refresh();//Обновляем панель
-            for (int i = 0; i < count_cells; ++i)
-                storage.Delete_object(i); // Удаляем объект из хранилища
+                                   //while (storage.Occupied(count_cells) != 0)
+            while (!storage.Is_empty(0))
+                storage.Delete_object(0); // Удаляем объект из хранилища
             count_elements = 0; // Кол-во элементов в хранилище обнуляем 
+        }
+        private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            Deselect(ref storage);
+            Redraw_Shapes(ref storage);
+            int g;
+            if (e.Node.Level != 1)
+                g = e.Node.Parent.Index;
+            else
+                g = e.Node.Index;
+            storage.objects[g].Select(true);
+            Draw_Shape(ref storage, g);
         }
         #endregion
         #region Рисовка и перерисовка фигур
@@ -755,11 +822,14 @@ namespace Tree_Of_Objects_And_Subscription
         {
             Pen pen = new Pen(default_color, 3); // Ручка для рисования
             SolidBrush solidBrush = new SolidBrush(Color.LightGray); // Цвет для заливки
+            SolidBrush stickyBrush = new SolidBrush(Color.LightGreen); // Цвет для заливки
             SolidBrush defaultBrush = new SolidBrush(Color.Transparent);
             if (!storage.Is_empty(index))
             {
                 pen.Color = storage.objects[index].GetColor();
-                if (storage.objects[index].IsSelected())
+                if (storage.objects[index].IsSelected() && storage.objects[index].IsSticky())
+                    storage.objects[index].Draw_Shape(pen, stickyBrush, Canvas_Panel);
+                else if (storage.objects[index].IsSelected() && !storage.objects[index].IsSticky())
                     storage.objects[index].Draw_Shape(pen, solidBrush, Canvas_Panel);
                 else
                     storage.objects[index].Draw_Shape(pen, defaultBrush, Canvas_Panel);
@@ -788,6 +858,7 @@ namespace Tree_Of_Objects_And_Subscription
                     if (storage.objects[i].IsSelected())
                     {
                         storage.Delete_object(i);
+                        --i;
                         count_elements--;
                     }
         }
@@ -812,5 +883,6 @@ namespace Tree_Of_Objects_And_Subscription
                     break;
             }
         }
+        
     }
 }

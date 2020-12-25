@@ -44,6 +44,8 @@
             this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
             this.Ungrouping_ToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.Stickiness_ToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.Write_ToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.Read_ToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -52,8 +54,6 @@
             this.Canvas_Panel = new System.Windows.Forms.Panel();
             this.ColorDialog = new System.Windows.Forms.ColorDialog();
             this.TreeView = new System.Windows.Forms.TreeView();
-            this.Stickiness_ToolStripButton = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -203,6 +203,21 @@
             this.toolStripSeparator4.Name = "toolStripSeparator4";
             this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
             // 
+            // Stickiness_ToolStripButton
+            // 
+            this.Stickiness_ToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("Stickiness_ToolStripButton.Image")));
+            this.Stickiness_ToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.Stickiness_ToolStripButton.Name = "Stickiness_ToolStripButton";
+            this.Stickiness_ToolStripButton.Size = new System.Drawing.Size(79, 22);
+            this.Stickiness_ToolStripButton.Text = "Липкость";
+            this.Stickiness_ToolStripButton.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.Stickiness_ToolStripButton.Click += new System.EventHandler(this.Stickiness_ToolStripButton_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            // 
             // Write_ToolStripButton
             // 
             this.Write_ToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("Write_ToolStripButton.Image")));
@@ -265,21 +280,8 @@
             this.TreeView.Name = "TreeView";
             this.TreeView.Size = new System.Drawing.Size(216, 421);
             this.TreeView.TabIndex = 2;
-            // 
-            // Stickiness_ToolStripButton
-            // 
-            this.Stickiness_ToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("Stickiness_ToolStripButton.Image")));
-            this.Stickiness_ToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Stickiness_ToolStripButton.Name = "Stickiness_ToolStripButton";
-            this.Stickiness_ToolStripButton.Size = new System.Drawing.Size(79, 22);
-            this.Stickiness_ToolStripButton.Text = "Липкость";
-            this.Stickiness_ToolStripButton.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-            this.Stickiness_ToolStripButton.Click += new System.EventHandler(this.Stickiness_ToolStripButton_Click);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+            this.TreeView.TabStop = false;
+            this.TreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
             // 
             // Form1
             // 
