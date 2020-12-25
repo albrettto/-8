@@ -25,6 +25,7 @@ namespace Tree_Of_Objects_And_Subscription
         public class Shape // Родительский (класс) фигуры
         {
             public int x, y;
+            public int radius = 30, size = 60;
             public int X_min, X_max, Y_min, Y_max;
             protected Color color = default_color;
             private bool is_selected = false;
@@ -101,7 +102,7 @@ namespace Tree_Of_Objects_And_Subscription
         }
         class Circle : Shape// Класс круга
         {
-            public int radius = 30;
+            //public int radius = 30;
             public Circle() { }
             public Circle(int x, int y)
             {
@@ -155,7 +156,7 @@ namespace Tree_Of_Objects_And_Subscription
         }
         class Triangle : Shape // Класс треугольника
         {
-            public int size = 60;
+            //public int size = 60;
             public Triangle() { }
             public Triangle(int x, int y) // Конструктор с параметрами
             {
@@ -217,7 +218,7 @@ namespace Tree_Of_Objects_And_Subscription
         }
         class Square : Shape // Класс квадрата
         {
-            public int size = 60;
+            //public int size = 60;
             public Square() { }
             public Square(int x, int y)
             {
@@ -307,6 +308,7 @@ namespace Tree_Of_Objects_And_Subscription
             public override void Ungroup(ref Storage storage, int c)
             {
                 storage.Delete_object(c);
+                storage.Sort(count_cells);
                 for (int i = 0; i < count; ++i)
                 {
                     storage.Add_object(count_elements, ref group[i], count_cells, ref indexin);
@@ -421,6 +423,7 @@ namespace Tree_Of_Objects_And_Subscription
                 }
                 objects[ind] = new_object;
                 indexin = ind;
+                Sort(count_cells);
                 NotifyObservers();
             }
             public void Delete_object(int ind)
@@ -428,10 +431,23 @@ namespace Tree_Of_Objects_And_Subscription
                 objects[ind] = null;
                 if (count_elements > 0)
                     count_elements--;
-                for (int i = ind; i < count_cells - 1; ++i)
-                    objects[i] = objects[i + 1];
-                objects[count_cells - 1] = null;
                 NotifyObservers();
+            }
+            public void Sort(int size)
+            {
+                Storage storage1 = new Storage(size);
+                int col = 0;
+                for (int i = 0; i < size; ++i)
+                {
+                    if (!Is_empty(i))
+                    {
+                        storage1.objects[col] = objects[i];
+                        ++col;
+                    }
+                }
+                Initialization(size);
+                for (int i = 0; i < size; ++i)
+                    objects[i] = storage1.objects[i];
             }
             public bool Is_empty(int ind)
             {   // Проверяет занято ли место в хранилище
@@ -509,22 +525,124 @@ namespace Tree_Of_Objects_And_Subscription
         }
         public class StickyObserver: IObserver
         {
-            StickyObserver() { }
-            public void Update(ref TreeView treeView, Storage storage)
+            public StickyObserver() { }
+            public bool checkCircle(Storage stg, int i, int j)
             {
-                int x = 0, y = 0;
-                for(int i = 0; i < count_cells;++i)
-                    if(!storage.Is_empty(i))
-                        if(storage.objects[i].IsSelected() && storage.objects[i].IsSticky())
-                        {
-                            x = storage.objects[i].x;
-                            y = storage.objects[i].y;
-                        }
-                for (int i = 0; i < count_cells; ++i)
-                    if (!storage.Is_empty(i))
-                        if (storage.objects[i].Check_Shape(x, y))
-                            storage.objects[i].Select(true);
+                if ((stg.objects[j].x - stg.objects[i].x) * (stg.objects[j].x - stg.objects[i].x) +
+                    (stg.objects[j].y - stg.objects[i].y) * (stg.objects[j].y - stg.objects[i].y)
+                    <= (stg.objects[i].radius + stg.objects[j].radius) * (stg.objects[i].radius + stg.objects[j].radius) + 1)
+                    return true;
+                else return false;
             }
+            //public bool checkLine(Storage stg, int i, int j)
+            //{
+            //    if (stg.objects[i].x + stg.objects[i].lenght >= stg.objects[j].x - stg.objects[j].lenght
+            //        && stg.objects[i].x - stg.objects[i].lenght <= stg.objects[j].x + stg.objects[j].lenght
+            //        && stg.objects[i].y >= stg.objects[j].y - 10
+            //        && stg.objects[i].y <= stg.objects[j].y + 10)
+            //        return true;
+            //    else return false;
+            //}
+            public bool checkSquare(Storage stg, int i, int j)
+            {
+                if (stg.objects[i].x + (stg.objects[i].size / 2) >= stg.objects[j].x - (stg.objects[j].size / 2)
+                    && stg.objects[i].x - (stg.objects[i].size / 2) <= stg.objects[j].x + (stg.objects[j].size / 2)
+                    && stg.objects[i].y >= stg.objects[j].y - (stg.objects[j].size)
+                    && stg.objects[i].y <= stg.objects[j].y + (stg.objects[j].size))
+                    return true;
+                else return false;
+            }
+
+            public bool FigureCheck(Storage stg, int i, int j, string b, int d)
+            {
+                string h;
+                if (d == 1)
+                {
+                    h = b;
+                }
+                else h = stg.objects[j].Name();
+                switch (h)
+                {
+                    case "Circle":
+                        if (checkCircle(stg, i, j))
+                            return true;
+                        break;
+
+                    //case "Line":
+                    //    if (checkLine(stg, i, j))
+                    //        return true;
+                    //    break;
+
+                    case "Square":
+                        if (checkSquare(stg, i, j))
+                            return true;
+                        break;
+                    case "Group":
+                        for (int v = 0; v < (stg.objects[j] as Group).count; ++v)
+                        {
+                            string l = (stg.objects[j] as Group).Name();
+                            if (FigureCheck(stg, i, v, l, 1))
+                                return true;
+                        }
+                        break;
+                    case null:
+                        return false;
+
+
+
+
+                }
+                return false;
+
+            }
+            public void Update(ref TreeView treeView, Storage stg)
+            {
+                int p = 0;
+                for (int i = 0; i < count_cells; ++i)
+                {
+                    if (!stg.Is_empty(i))
+                    {
+                        if (stg.objects[i].IsSticky() == true)
+                        {
+                            p = i;
+                            break;
+                        }
+                    }
+                }
+                for (int i = 0; i < count_cells; ++i)
+                {
+                    if (!stg.Is_empty(i))
+                    {
+                        if (p == i)
+                        {
+                            continue;
+                        }
+                        string f = "";
+                        if (FigureCheck(stg, p, i, f, 0))
+                        {
+                            stg.objects[i].Select(true);
+                        }
+                    }
+                }
+            }
+
+
+
+            //public void Update(ref TreeView treeView, Storage storage)
+            //{
+            //    int x = 0, y = 0;
+            //    for (int i = 0; i < count_cells; ++i)
+            //        if (!storage.Is_empty(i))
+            //            if (storage.objects[i].IsSelected() && storage.objects[i].IsSticky())
+            //            {
+            //                x = storage.objects[i].x;
+            //                y = storage.objects[i].y;
+            //            }
+            //    for (int i = 0; i < count_cells; ++i)
+            //        if (!storage.Is_empty(i))
+            //            if (storage.objects[i].Check_Shape(x, y))
+            //                storage.objects[i].Select(true);
+            //}
         }
         public class MVC
         {
@@ -672,13 +790,13 @@ namespace Tree_Of_Objects_And_Subscription
                 Change_Size(ref storage, 5);
             if (e.KeyCode == Keys.Subtract) //Если -
                 Change_Size(ref storage, -5);
-            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.W)
+            if (e.KeyCode == Keys.W)
                 Move_y(ref storage, -5);
-            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.S)
+            if (e.KeyCode == Keys.S)
                 Move_y(ref storage, 5);
-            if (e.KeyCode == Keys.Left || e.KeyCode == Keys.A)
+            if (e.KeyCode == Keys.A)
                 Move_x(ref storage, -5);
-            if (e.KeyCode == Keys.Right || e.KeyCode == Keys.D)
+            if (e.KeyCode == Keys.D)
                 Move_x(ref storage, 5);
             Redraw_Shapes(ref storage);
         }
@@ -719,7 +837,6 @@ namespace Tree_Of_Objects_And_Subscription
                     {
                         group.Add_to_Group(ref storage.objects[i]);
                         storage.Delete_object(i);
-                        --i;
                     }
             }
             storage.Add_object(count_elements, ref group, count_cells, ref indexin);
@@ -739,6 +856,8 @@ namespace Tree_Of_Objects_And_Subscription
         bool sticky_now = false;
         private void Stickiness_ToolStripButton_Click(object sender, EventArgs e)
         {
+            StickyObserver sticky_observer = new StickyObserver();
+            storage.RegisterObserver(sticky_observer);
             for (int i = 0; i < count_cells; ++i)
                 if (!storage.Is_empty(i))
                     if (storage.objects[i].IsSelected())
@@ -798,11 +917,17 @@ namespace Tree_Of_Objects_And_Subscription
         }
         private void Clear_toolStripButton_Click(object sender, EventArgs e)
         {
+            while (storage.Occupied(count_cells) != 0)
+            {
+                for (int i = 0; i < count_cells; ++i)
+                {
+                    if (!storage.Is_empty(i))
+                    {
+                        storage.Delete_object(i);
+                    }
+                }
+            }
             Canvas_Panel.Refresh();//Обновляем панель
-                                   //while (storage.Occupied(count_cells) != 0)
-            while (!storage.Is_empty(0))
-                storage.Delete_object(0); // Удаляем объект из хранилища
-            count_elements = 0; // Кол-во элементов в хранилище обнуляем 
         }
         private void TreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -858,7 +983,7 @@ namespace Tree_Of_Objects_And_Subscription
                     if (storage.objects[i].IsSelected())
                     {
                         storage.Delete_object(i);
-                        --i;
+                        storage.Sort(count_cells);
                         count_elements--;
                     }
         }
@@ -883,6 +1008,5 @@ namespace Tree_Of_Objects_And_Subscription
                     break;
             }
         }
-        
     }
 }
