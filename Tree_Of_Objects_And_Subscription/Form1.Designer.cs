@@ -279,7 +279,7 @@
             this.TreeView.Location = new System.Drawing.Point(806, 28);
             this.TreeView.Name = "TreeView";
             this.TreeView.Size = new System.Drawing.Size(216, 421);
-            this.TreeView.TabIndex = 2;
+            this.TreeView.TabIndex = 0;
             this.TreeView.TabStop = false;
             this.TreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeView_AfterSelect);
             // 
